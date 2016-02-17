@@ -36,6 +36,8 @@ terminal COMMA, COLON, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK,
 
 non terminal Absyn.Exp          Exp;
 non terminal Absyn.Var          Var;
+non terminal Absyn.SubscriptVar SubscriptVar;
+non terminal Absyn.FieldVar     FieldVar;
 
 start with Exp;
 //Uh I think Var is "lValue" as referred to in the book...
@@ -48,8 +50,22 @@ Exp ::= error:e
 		{: RESULT = new Absyn.StringExp(sleft, s); :}
 	| INT:i
 	  {: RESULT = new Absyn.IntExp(ileft, i); :}
+	| BREAK:b
+	  {: RESULT = new Absyn.BreakExp(bleft); :}
 	;
 
 Var ::=   ID:n
 	  {: RESULT = new Absyn.SimpleVar(nleft, sym(n)); :}
+	| SubscriptVar:sv
+	  {: RESULT = sv; :}
+	| FieldVar:fv
+		{: RESULT = fv; :}
+	;
+
+SubscriptVar ::= Var:v LBRACK Exp:e RBRACK
+    {: RESULT = new Absyn.SubscriptVar(vleft, v, e); :}
+	;
+
+FieldVar ::= Var:v DOT ID:id
+		{: RESULT = new Absyn.FieldVar(vleft, v, sym(id)); :}
 	;
