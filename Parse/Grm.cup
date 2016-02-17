@@ -5,7 +5,7 @@ action code {: static Symbol.Symbol sym(String s) {
 	        }
 	    :};
 
-parser code  {: 
+parser code  {:
   Lexer lexer;
 
   public void syntax_error(java_cup.runtime.Symbol current) {
@@ -29,8 +29,8 @@ scan with {: return lexer.nextToken(); :};
 
 terminal String ID, STRING;
 terminal Integer INT;
-terminal COMMA, COLON, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK, 
-	LBRACE, RBRACE, DOT, PLUS, MINUS, TIMES, DIVIDE, EQ, NEQ, LT, LE, 
+terminal COMMA, COLON, SEMICOLON, LPAREN, RPAREN, LBRACK, RBRACK,
+	LBRACE, RBRACE, DOT, PLUS, MINUS, TIMES, DIVIDE, EQ, NEQ, LT, LE,
 	GT, GE, AND, OR, ASSIGN, ARRAY, IF, THEN, ELSE, WHILE, FOR, TO,
 	DO, LET, IN, END, OF, BREAK, NIL, FUNCTION, VAR, TYPE;
 
@@ -38,11 +38,16 @@ non terminal Absyn.Exp          Exp;
 non terminal Absyn.Var          Var;
 
 start with Exp;
+//Uh I think Var is "lValue" as referred to in the book...
 
 Exp ::= error:e
 	  {: RESULT = new Absyn.SeqExp(eleft, null); :}
 	| Var:v
 	  {: RESULT = new Absyn.VarExp(vleft, v); :}
+	| STRING:s
+		{: RESULT = new Absyn.StringExp(sleft, s); :}
+	| INT:i
+	  {: RESULT = new Absyn.IntExp(ileft, i); :}
 	;
 
 Var ::=   ID:n
