@@ -165,6 +165,7 @@ FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN NameTy:nt EQ Exp:e
 			{: RESULT = new Absyn.FunctionDec(fleft, sym(id), fl, nt, e, null); :}
 	;
 
+//(function's) NAME's TYPE That's why it's called that
 NameTy ::= COLON:c ID:id
 			{: RESULT = new Absyn.NameTy(cleft, sym(id)); :}
 	;
