@@ -42,6 +42,7 @@ non terminal Absyn.SeqExp				SeqExp;
 non terminal Absyn.ExpList			ExpList;
 non terminal Absyn.IfExp				IfExp;
 non terminal Absyn.OpExp				OpExp;
+non terminal Absyn.WhileExp     WhileExp;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -49,6 +50,7 @@ non terminal Absyn.ExpList			ILearnedSomethingLastSemester;
 non terminal Absyn.Exp          ElsePart;
 
 precedence nonassoc GT, THEN, ELSE;
+precedence left PLUS;
 
 start with Exp;
 //Uh I think Var is "lValue" as referred to in the book...
@@ -69,6 +71,8 @@ Exp ::= error:e
 		{: RESULT = oe; :}
 	| SeqExp:se
 		{: RESULT = se; :}
+	| WhileExp:we
+		{: RESULT = we; :}
 	;
 
 SeqExp ::= LPAREN:lp ExpList:el RPAREN
@@ -97,6 +101,8 @@ ILearnedSomethingLastSemester ::= Exp:e
 
 OpExp ::= Exp:le GT Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.GT, re); :}
+		| Exp:le PLUS Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.PLUS, re); :}
 	;
 
 IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ee
@@ -122,4 +128,8 @@ SubscriptVar ::= Var:v LBRACK Exp:e RBRACK
 
 FieldVar ::= Var:v DOT ID:id
 		{: RESULT = new Absyn.FieldVar(vleft, v, sym(id)); :}
+	;
+
+WhileExp ::= WHILE:w Exp:test DO Exp:body
+		{: RESULT = new Absyn.WhileExp(wleft, test, body); :}
 	;
