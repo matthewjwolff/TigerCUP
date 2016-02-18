@@ -43,11 +43,19 @@ non terminal Absyn.ExpList			ExpList;
 non terminal Absyn.IfExp				IfExp;
 non terminal Absyn.OpExp				OpExp;
 non terminal Absyn.WhileExp     WhileExp;
+non terminal Absyn.LetExp       LetExp;
+non terminal Absyn.DecList      DecList;
+non terminal Absyn.Dec					Dec;
+non terminal Absyn.FunctionDec	FunctionDec;
+non terminal Absyn.FieldList    FieldList;
+non terminal Absyn.NameTy				NameTy;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
 non terminal Absyn.ExpList			ILearnedSomethingLastSemester;
 non terminal Absyn.Exp          ElsePart;
+non terminal Absyn.DecList      DecTail;
+non terminal Absyn.FieldList		FieldListTail;
 
 precedence nonassoc GT, THEN, ELSE;
 precedence left PLUS;
@@ -73,6 +81,8 @@ Exp ::= error:e
 		{: RESULT = se; :}
 	| WhileExp:we
 		{: RESULT = we; :}
+	| LetExp:le
+		{: RESULT = le; :}
 	;
 
 SeqExp ::= LPAREN:lp ExpList:el RPAREN
@@ -132,4 +142,39 @@ FieldVar ::= Var:v DOT ID:id
 
 WhileExp ::= WHILE:w Exp:test DO Exp:body
 		{: RESULT = new Absyn.WhileExp(wleft, test, body); :}
+	;
+
+LetExp ::= LET:l DecList:dl IN Exp:el END
+		{: RESULT = new Absyn.LetExp(lleft, dl, el); :}
+	;
+
+DecList ::= Dec:d DecTail:dl
+		{: RESULT = new Absyn.DecList(d, dl); :}
+	;
+
+DecTail ::= {: RESULT = null; :}
+	|	DecList:dl
+			{: RESULT = dl; :}
+	;
+
+Dec ::= FunctionDec:fd
+			{: RESULT = fd; :}
+	;
+
+FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN NameTy:nt EQ Exp:e
+			{: RESULT = new Absyn.FunctionDec(fleft, sym(id), fl, nt, e, null); :}
+	;
+
+NameTy ::= COLON:c ID:id
+			{: RESULT = new Absyn.NameTy(cleft, sym(id)); :}
+	;
+
+FieldList ::= ID:i1 COLON ID:i2 FieldListTail:tail
+			{: RESULT =  new Absyn.FieldList(i1left, sym(i1), sym(i2), tail); :}
+		| {: RESULT = null; :}
+	;
+
+FieldListTail ::= {: RESULT= null; :}
+		| COMMA ID:i1 COLON ID:i2 FieldListTail:fl
+			{: RESULT = new Absyn.FieldList(i1left, sym(i1), sym(i2), fl); :}
 	;
