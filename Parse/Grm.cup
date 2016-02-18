@@ -46,6 +46,7 @@ non terminal Absyn.OpExp				OpExp;
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
 non terminal Absyn.ExpList			ILearnedSomethingLastSemester;
+non terminal Absyn.Exp          ElsePart;
 
 precedence nonassoc GT, THEN, ELSE;
 
@@ -98,10 +99,13 @@ OpExp ::= Exp:le GT Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.GT, re); :}
 	;
 
-IfExp ::= IF:i Exp:test THEN Exp:te ELSE Exp:ee
+IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ee
 			{: RESULT = new Absyn.IfExp(ileft, test, te, ee); :}
-		| IF:i Exp:test THEN Exp:te
-			{: RESULT = new Absyn.IfExp(ileft, test, te); :}
+	;
+
+ElsePart ::= {: RESULT = null; :}
+		| ELSE Exp:ee
+			{: RESULT =  ee; :}
 	;
 
 Var ::=   ID:n
