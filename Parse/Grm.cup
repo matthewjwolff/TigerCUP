@@ -56,6 +56,7 @@ non terminal Absyn.TypeDec			TypeDec;
 non terminal Absyn.Ty						Ty;
 non terminal Absyn.ArrayTy			ArrayTy;
 non terminal Absyn.ForExp				ForExp;
+non terminal Absyn.RecordTy			RecordTy;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -207,10 +208,16 @@ Ty ::= ID:id
 			{: RESULT = new Absyn.NameTy(idleft, sym(id)); :}
 		| ArrayTy:at
 			{: RESULT = at; :}
+		| RecordTy:rt
+			{: RESULT = rt; :}
 	;
 
 ArrayTy ::= ARRAY:a OF ID:id
 			{: RESULT = new Absyn.ArrayTy(aleft, sym(id)); :}
+	;
+
+RecordTy ::= LBRACE:lb FieldList:fl RBRACE
+			{: RESULT = new Absyn.RecordTy(lbleft, fl); :}
 	;
 
 VarDec ::= VAR:v ID:id OptionalTypeDec:otd ASSIGN Exp:e
