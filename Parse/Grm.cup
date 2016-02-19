@@ -50,6 +50,7 @@ non terminal Absyn.FunctionDec	FunctionDec;
 non terminal Absyn.FieldList    FieldList;
 non terminal Absyn.NameTy				NameTy;
 non terminal Absyn.CallExp			CallExp;
+non terminal Absyn.VarDec				VarDec;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -88,6 +89,8 @@ Exp ::= error:e
 		{: RESULT = le; :}
 	| CallExp:ce
 		{: RESULT = ce; :}
+	| NIL:n
+		{: RESULT = new Absyn.NilExp(nleft); :}
 	;
 
 SeqExp ::= LPAREN:lp ExpList:el RPAREN
@@ -118,6 +121,8 @@ OpExp ::= Exp:le GT Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.GT, re); :}
 		| Exp:le PLUS Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.PLUS, re); :}
+		| MINUS:m Exp:e
+			{: RESULT = new Absyn.OpExp(mleft, new Absyn.IntExp(mleft, 0), Absyn.OpExp.MINUS, e); :}
 	;
 
 IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ee
@@ -164,6 +169,12 @@ DecTail ::= {: RESULT = null; :}
 
 Dec ::= FunctionDec:fd
 			{: RESULT = fd; :}
+		| VarDec:vd
+			{: RESULT = vd; :}
+	;
+
+VarDec ::= VAR:v ID:id NameTy:nt ASSIGN Exp:e
+			{: RESULT = new Absyn.VarDec(vleft, sym(id), nt, e); :}
 	;
 
 FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN NameTy:nt EQ Exp:e
