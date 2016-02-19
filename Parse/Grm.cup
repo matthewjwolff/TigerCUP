@@ -69,8 +69,9 @@ non terminal Absyn.ExpList			ExpListTail;
 non terminal Absyn.TypeDec			TypeDecTail;
 non terminal Absyn.NameTy				OptionalTypeDec;
 
-precedence nonassoc GT, THEN, ELSE;
-precedence left PLUS;
+precedence nonassoc GT, GE, LE, LT, EQ, NEQ, THEN, ELSE, ASSIGN;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE;
 
 start with Exp;
 //Uh I think Var is "lValue" as referred to in the book...
@@ -143,6 +144,22 @@ OpExp ::= Exp:le GT Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.PLUS, re); :}
 		| MINUS:m Exp:e
 			{: RESULT = new Absyn.OpExp(mleft, new Absyn.IntExp(mleft, 0), Absyn.OpExp.MINUS, e); :}
+		| Exp:le MINUS Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.MINUS, re); :}
+		| Exp:le TIMES Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.MUL, re); :}
+		| Exp:le DIVIDE Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.DIV, re); :}
+		| Exp:le LE Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.LE, re); :}
+		| Exp:le GE Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.GE, re); :}
+		| Exp:le LT Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.LT, re); :}
+		| Exp:le EQ Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.EQ, re); :}
+		| Exp:le NEQ Exp:re
+			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.NE, re); :}
 	;
 
 IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ee
