@@ -49,6 +49,7 @@ non terminal Absyn.Dec					Dec;
 non terminal Absyn.FunctionDec	FunctionDec;
 non terminal Absyn.FieldList    FieldList;
 non terminal Absyn.NameTy				NameTy;
+non terminal Absyn.CallExp			CallExp;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -56,6 +57,8 @@ non terminal Absyn.ExpList			ILearnedSomethingLastSemester;
 non terminal Absyn.Exp          ElsePart;
 non terminal Absyn.DecList      DecTail;
 non terminal Absyn.FieldList		FieldListTail;
+non terminal Absyn.ExpList			ExpListCommas;
+non terminal Absyn.ExpList			ExpListTail;
 
 precedence nonassoc GT, THEN, ELSE;
 precedence left PLUS;
@@ -83,6 +86,8 @@ Exp ::= error:e
 		{: RESULT = we; :}
 	| LetExp:le
 		{: RESULT = le; :}
+	| CallExp:ce
+		{: RESULT = ce; :}
 	;
 
 SeqExp ::= LPAREN:lp ExpList:el RPAREN
@@ -178,4 +183,18 @@ FieldList ::= ID:i1 COLON ID:i2 FieldListTail:tail
 FieldListTail ::= {: RESULT= null; :}
 		| COMMA ID:i1 COLON ID:i2 FieldListTail:fl
 			{: RESULT = new Absyn.FieldList(i1left, sym(i1), sym(i2), fl); :}
+	;
+
+CallExp ::= ID:id LPAREN ExpListCommas:el RPAREN
+			{: RESULT = new Absyn.CallExp(idleft, sym(id), el); :}
+	;
+
+ExpListCommas ::= {: RESULT = null; :}
+		| Exp:e ExpListTail:elt
+			{: RESULT = new Absyn.ExpList(e, elt); :}
+	;
+
+ExpListTail ::= {: RESULT = null; :}
+		| COMMA ExpListCommas:elc
+			{: RESULT = elc; :}
 	;
