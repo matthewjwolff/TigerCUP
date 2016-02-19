@@ -54,6 +54,8 @@ non terminal Absyn.VarDec				VarDec;
 non terminal Absyn.AssignExp		AssignExp;
 non terminal Absyn.TypeDec			TypeDec;
 non terminal Absyn.Ty						Ty;
+non terminal Absyn.ArrayTy			ArrayTy;
+non terminal Absyn.ForExp				ForExp;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -64,6 +66,7 @@ non terminal Absyn.FieldList		FieldListTail;
 non terminal Absyn.ExpList			ExpListCommas;
 non terminal Absyn.ExpList			ExpListTail;
 non terminal Absyn.TypeDec			TypeDecTail;
+non terminal Absyn.NameTy				OptionalTypeDec;
 
 precedence nonassoc GT, THEN, ELSE;
 precedence left PLUS;
@@ -97,6 +100,8 @@ Exp ::= error:e
 		{: RESULT = new Absyn.NilExp(nleft); :}
 	| AssignExp:ae
 		{: RESULT = ae; :}
+	| ForExp:fe
+		{: RESULT = fe; :}
 	;
 
 AssignExp ::= Var:v ASSIGN Exp:e
@@ -105,6 +110,10 @@ AssignExp ::= Var:v ASSIGN Exp:e
 
 SeqExp ::= LPAREN:lp ExpList:el RPAREN
 	  {: RESULT = new Absyn.SeqExp(lpleft, el); :}
+	;
+
+ForExp ::= FOR:f ID:n ASSIGN Exp:e TO Exp:te DO Exp:de
+		{: RESULT = new Absyn.ForExp(fleft, new Absyn.VarDec(nleft, sym(n), null, e), te, de); :}
 	;
 
 ExpList ::=
@@ -196,10 +205,21 @@ TypeDecTail ::= {: RESULT = null; :}
 
 Ty ::= ID:id
 			{: RESULT = new Absyn.NameTy(idleft, sym(id)); :}
+		| ArrayTy:at
+			{: RESULT = at; :}
 	;
 
-VarDec ::= Var:v ID:id NameTy:nt ASSIGN Exp:e
-			{: RESULT = new Absyn.VarDec(vleft, sym(id), nt, e); :}
+ArrayTy ::= ARRAY:a OF ID:id
+			{: RESULT = new Absyn.ArrayTy(aleft, sym(id)); :}
+	;
+
+VarDec ::= VAR:v ID:id OptionalTypeDec:otd ASSIGN Exp:e
+			{: RESULT = new Absyn.VarDec(vleft, sym(id), otd, e); :}
+	;
+
+OptionalTypeDec ::= COLON NameTy:nt
+			{: RESULT = nt; :}
+		| {: RESULT = null; :}
 	;
 
 FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN NameTy:nt EQ Exp:e
