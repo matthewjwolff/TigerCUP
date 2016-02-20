@@ -57,6 +57,9 @@ non terminal Absyn.Ty						Ty;
 non terminal Absyn.ArrayTy			ArrayTy;
 non terminal Absyn.ForExp				ForExp;
 non terminal Absyn.RecordTy			RecordTy;
+non terminal Absyn.ArrayExp			ArrayExp;
+non terminal Absyn.RecordExp		RecordExp;
+non terminal Absyn.FieldExpList FieldExpList;
 
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
@@ -68,6 +71,7 @@ non terminal Absyn.ExpList			ExpListCommas;
 non terminal Absyn.ExpList			ExpListTail;
 non terminal Absyn.TypeDec			TypeDecTail;
 non terminal Absyn.NameTy				OptionalTypeDec;
+non terminal Absyn.FieldExpList FieldExpListTail;
 
 precedence nonassoc GT, GE, LE, LT, EQ, NEQ, THEN, ELSE, ASSIGN;
 precedence left PLUS, MINUS;
@@ -104,6 +108,10 @@ Exp ::= error:e
 		{: RESULT = ae; :}
 	| ForExp:fe
 		{: RESULT = fe; :}
+	| ArrayExp:ae
+		{: RESULT = ae; :}
+	| RecordExp:re
+		{: RESULT = re; :}
 	;
 
 AssignExp ::= Var:v ASSIGN Exp:e
@@ -277,4 +285,22 @@ ExpListCommas ::= {: RESULT = null; :}
 ExpListTail ::= {: RESULT = null; :}
 		| COMMA ExpListCommas:elc
 			{: RESULT = elc; :}
+	;
+
+ArrayExp ::= ID:id LBRACK Exp:size RBRACK OF Exp:ini
+			{: RESULT = new Absyn.ArrayExp(idleft, sym(id), size, ini); :}
+	;
+
+RecordExp ::= ID:id LBRACE FieldExpList:fel RBRACE
+			{: RESULT = new Absyn.RecordExp(idleft, sym(id), fel); :}
+	;
+
+FieldExpList ::= {: RESULT = null; :}
+		| ID:id EQ Exp:e FieldExpListTail:tail
+			{: RESULT = new Absyn.FieldExpList(idleft, sym(id), e, tail); :}
+	;
+
+FieldExpListTail ::= {: RESULT = null; :}
+		| COMMA:com ID:id EQ Exp:e FieldExpListTail:felt
+			{: RESULT = new Absyn.FieldExpList(comleft, sym(id), e, felt); :}
 	;
