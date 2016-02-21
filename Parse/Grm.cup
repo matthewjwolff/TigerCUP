@@ -64,7 +64,7 @@ non terminal Absyn.FieldExpList FieldExpList;
 //I made these up
 non terminal Absyn.ExpList			EatMySemicolon;
 non terminal Absyn.ExpList			ILearnedSomethingLastSemester;
-non terminal Absyn.Exp          ElsePart;
+non terminal Absyn.Exp					ElsePart;
 non terminal Absyn.DecList      DecTail;
 non terminal Absyn.FieldList		FieldListTail;
 non terminal Absyn.ExpList			ExpListCommas;
@@ -76,6 +76,8 @@ non terminal Absyn.FieldExpList FieldExpListTail;
 precedence nonassoc GT, GE, LE, LT, EQ, NEQ, THEN, ELSE, ASSIGN;
 precedence left PLUS, MINUS;
 precedence left TIMES, DIVIDE;
+//oh my god not having these absolutely destroys the parser
+precedence left AND, OR;
 
 start with Exp;
 //Uh I think Var is "lValue" as referred to in the book...
@@ -170,13 +172,17 @@ OpExp ::= Exp:le GT Exp:re
 			{: RESULT = new Absyn.OpExp(leleft, le, Absyn.OpExp.NE, re); :}
 	;
 
-IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ee
-			{: RESULT = new Absyn.IfExp(ileft, test, te, ee); :}
+IfExp ::= IF:i Exp:test THEN Exp:te ElsePart:ep
+			{: RESULT = new Absyn.IfExp(ileft, test, te, ep); :}
+		| Exp:le AND Exp:re
+		 {: RESULT = new Absyn.IfExp(leleft, le, re, new Absyn.IntExp(leleft, 0)); :}
+		| Exp:le OR Exp:re
+		 {: RESULT = new Absyn.IfExp(leleft, le, new Absyn.IntExp(leleft, 1), re); :}
 	;
 
 ElsePart ::= {: RESULT = null; :}
-		| ELSE Exp:ee
-			{: RESULT =  ee; :}
+		| ELSE Exp:e
+			{: RESULT = e; :}
 	;
 
 Var ::=   ID:n
