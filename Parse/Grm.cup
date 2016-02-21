@@ -38,7 +38,7 @@ non terminal Absyn.Exp          Exp;
 non terminal Absyn.Var          Var;
 non terminal Absyn.SubscriptVar SubscriptVar;
 non terminal Absyn.FieldVar     FieldVar;
-non terminal Absyn.SeqExp				SeqExp;
+non terminal Absyn.Exp				SeqExp;
 non terminal Absyn.ExpList			ExpList;
 non terminal Absyn.IfExp				IfExp;
 non terminal Absyn.OpExp				OpExp;
@@ -97,7 +97,7 @@ Exp ::= error:e
 		{: RESULT = ie; :}
 	| OpExp:oe
 		{: RESULT = oe; :}
-	| SeqExp:se
+	| LPAREN SeqExp:se RPAREN
 		{: RESULT = se; :}
 	| WhileExp:we
 		{: RESULT = we; :}
@@ -121,8 +121,10 @@ AssignExp ::= Var:v ASSIGN Exp:e
 		{: RESULT = new Absyn.AssignExp(vleft, v, e); :}
 	;
 
-SeqExp ::= LPAREN:lp ExpList:el RPAREN
-	  {: RESULT = new Absyn.SeqExp(lpleft, el); :}
+SeqExp ::= Exp:e
+		{: RESULT = e; :}
+		| ExpList:el
+		{: RESULT = new Absyn.SeqExp(elleft, el); :}
 	;
 
 ForExp ::= FOR:f ID:n ASSIGN Exp:e TO Exp:te DO Exp:de
@@ -131,8 +133,6 @@ ForExp ::= FOR:f ID:n ASSIGN Exp:e TO Exp:te DO Exp:de
 
 ExpList ::=
 		{: RESULT = null; :}
-		| Exp:e
-	  	{: RESULT = new Absyn.ExpList(e, null); :}
 		| EatMySemicolon:ems
 			{: RESULT = ems; :}
 	;
