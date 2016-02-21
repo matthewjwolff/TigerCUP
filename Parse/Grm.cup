@@ -210,8 +210,8 @@ WhileExp ::= WHILE:w Exp:test DO Exp:body
 		{: RESULT = new Absyn.WhileExp(wleft, test, body); :}
 	;
 
-LetExp ::= LET:l DecList:dl IN ExpList:el END
-		{: RESULT = new Absyn.LetExp(lleft, dl, new Absyn.SeqExp(elleft, el)); :}
+LetExp ::= LET:l DecList:dl IN SeqExp:se END
+		{: RESULT = new Absyn.LetExp(lleft, dl, se); :}
 	;
 
 DecList ::= Dec:d DecTail:dl
