@@ -194,8 +194,8 @@ Var ::=   ID:n
 		{: RESULT = fv; :}
 	;
 
-SubscriptVar ::= Var:v LBRACK Exp:e RBRACK
-    {: RESULT = new Absyn.SubscriptVar(vleft, v, e); :}
+SubscriptVar ::= ID:dontrecursetovar LBRACK:subbegin Exp:e RBRACK
+    	{: RESULT = new Absyn.SubscriptVar(subbeginleft, new Absyn.SimpleVar(dontrecursetovarleft, sym(dontrecursetovar)), e); :}
 	;
 
 FieldVar ::= Var:v DOT ID:id
