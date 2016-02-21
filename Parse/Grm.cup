@@ -72,6 +72,7 @@ non terminal Absyn.ExpList			ExpListTail;
 non terminal Absyn.TypeDec			TypeDecTail;
 non terminal Absyn.NameTy				OptionalTypeDec;
 non terminal Absyn.FieldExpList FieldExpListTail;
+non terminal Absyn.FunctionDec  FunctionDecTail;
 
 precedence nonassoc GT, GE, LE, LT, EQ, NEQ, THEN, ELSE, ASSIGN;
 precedence left PLUS, MINUS;
@@ -260,8 +261,13 @@ OptionalTypeDec ::= NameTy:nt
 		| {: RESULT = null; :}
 	;
 
-FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN NameTy:nt EQ Exp:e
-			{: RESULT = new Absyn.FunctionDec(fleft, sym(id), fl, nt, e, null); :}
+FunctionDec ::= FUNCTION:f ID:id LPAREN FieldList:fl RPAREN OptionalTypeDec:otd EQ Exp:e FunctionDecTail:tl
+			{: RESULT = new Absyn.FunctionDec(fleft, sym(id), fl, otd, e, tl); :}
+	;
+
+FunctionDecTail ::= {: RESULT = null; :}
+		| FunctionDec:next
+			{: RESULT = next; :}
 	;
 
 //(function's) NAME's TYPE That's why it's called that
